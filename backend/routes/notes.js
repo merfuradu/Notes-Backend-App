@@ -26,6 +26,28 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+  
+    try {
+      const result = await pool.query(
+        'UPDATE "Note" SET title = $1, content = $2 WHERE id = $3 RETURNING *',
+        [title, content, id]
+      );
+  
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Note not found' });
+      }
+  
+      res.status(200).json(result.rows[0]); // Return the updated note
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
+
 router.delete('/:id', async (req, res) => {
     const { id } = req.params; // Extract note ID from the URL
     try {
